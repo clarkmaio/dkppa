@@ -14,7 +14,7 @@ from src.utils import normalized_logistic, download_era5_dataset
 # Setup Functions
 # ---------------------------------------------------------
 
-@st.cache_resource
+#@st.cache_resource
 def ensure_data_loaded():
     """Ensure that ERA5 data is downloaded locally on the first run."""
     dataset_path = 'dataset/era5'
