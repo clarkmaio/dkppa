@@ -87,22 +87,26 @@ def render_sidebar():
 
 
 def create_base_map():
-    """Create the base folium map with geojson layers."""
-    base_dir = "/home/clarkmaio/workspace/dkppa/.venv/lib/python3.12/site-packages/entsoe/geo/geojson/"
-    geojson_files = ["DK_1.geojson", "DK_2.geojson"]
+    """Create the base folium map"""
+
 
     m = folium.Map(location=[56.15, 10.2], zoom_start=6)
     m.add_child(folium.LatLngPopup())
-
-    for file in geojson_files:
-        path = os.path.join(base_dir, file)
-        if os.path.exists(path):
-            with open(path, "r") as f:
-                geo_data = json.load(f)
-                folium.GeoJson(
-                    geo_data,
-                    style_function=lambda x: {'fillColor': 'lightgray', 'color': 'blue', 'weight': 1}
-                ).add_to(m)
+    
+    # Add a rectangle around Denmark
+    # Coordinates: [South, West], [North, East]
+    MIN_LAT=54.2499
+    MAX_LAT=58.001
+    MIN_LON=7.499999
+    MAX_LON=13.001
+    denmark_bounds = [[MIN_LAT, MIN_LON], [MAX_LAT, MAX_LON]]
+    folium.Rectangle(
+        bounds=denmark_bounds,
+        color="red",
+        weight=2,
+        fill=False,
+    ).add_to(m)
+    
     return m
 
 
