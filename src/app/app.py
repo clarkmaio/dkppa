@@ -17,7 +17,7 @@ from src.utils import normalized_logistic, download_era5_dataset
 @st.cache_resource
 def ensure_data_loaded():
     """Ensure that ERA5 data is downloaded locally on the first run."""
-    dataset_path = '/home/clarkmaio/workspace/dkppa/dataset/era5'
+    dataset_path = 'dataset/era5'
     if not os.path.exists(dataset_path) or not os.listdir(dataset_path):
         download_era5_dataset()
 
@@ -38,7 +38,7 @@ def load_price_scenario():
 @st.cache_data
 def load_point_weather(lat: float, lon: float):
     """Load weather data for a specific point from local dataset."""
-    basepath = '/home/clarkmaio/workspace/dkppa/dataset/era5/*.parquet'
+    basepath = 'dataset/era5/*.parquet'
     df = (
         pl.scan_parquet(basepath)
         .filter(pl.col('latitude') == lat)
