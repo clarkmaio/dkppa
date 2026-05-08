@@ -76,13 +76,12 @@ def compute_fairprice_stats(price: pl.DataFrame, weather: pl.DataFrame):
 
 def init_page():
     st.set_page_config(layout="wide", page_title="Denmark Map Dashboard", initial_sidebar_state="collapsed")
-    st.title("dkppa")
+    st.markdown("<h1 style='text-align: center;'>dkppa</h1>", unsafe_allow_html=True)
 
 
 def render_sidebar():
     with st.sidebar:
         capacity = st.slider(label='Capacity [Mw]', min_value=1, max_value=100, value=10, step=1)
-        st.file_uploader(label='Customer data', type=['csv'])
     return capacity
 
 
@@ -253,6 +252,36 @@ def main():
         Wind speed at 100m is converted to energy using a normalized logistic curve:
         - **Saturation:** 35 m/s
         - **Steepness:** -10
+
+        ### Price Scenario Construction
+        Each scenario represents a counterfactual answer to the question:
+        *"What would today's prices look like if the weather of year $Y$ were replayed?"*
+
+        The procedure has two stages:
+
+        **1. Fit a daily day-ahead price model.** Using historical DK_1 day-ahead
+        prices (2018–2024) joined with ERA5 weather, an `LpRegressor` is fitted
+        with the additive structure:
+
+        $$
+        \hat{p}_d = \mathrm{cs}(\text{ordinal\_day}) + f(\text{weekday}) + f(\text{year}) + \beta \cdot s_{100,d}
+        $$
+
+        where $\mathrm{cs}$ is a cyclic spline on day-of-year, $f(\cdot)$ are
+        categorical factors, and $s_{100,d}$ is the daily spatial-mean wind
+        speed at 100 m over Denmark.
+
+        **2. Generate one scenario per historical weather year.** For each year
+        $Y$ in the ERA5 archive, the daily features $(\text{ordinal\_day},
+        \text{weekday}, s_{100,d})$ are taken from that year's actual weather,
+        but the calendar `year` feature is **forced to the baseline year 2024**.
+        This freezes the year-level price effect at the most recent observed
+        level so that scenarios differ *only* through weather, not through
+        underlying price drift.
+
+        The fitted model then predicts a full daily price series for each
+        scenario, which the dashboard joins with the clicked-location energy
+        profile to produce the distribution of fair prices shown above.
         """)
 
 if __name__ == "__main__":
