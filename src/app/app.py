@@ -238,15 +238,35 @@ def main():
         st.header("Methodology")
         st.markdown(r"""
         ### PPA Fair Price Calculation
-        The PPA fair price ($p^*$) is calculated as the volume-weighted average price across all simulated hours:
+        The headline PPA fair price ($p^*$) is obtained in **two steps**:
+        a per-scenario fair price is computed first, and the reported value
+        is the **average of those per-scenario fair prices** across all
+        weather scenarios.
+
+        **Step 1 — Fair price per scenario.** For each scenario $s$ (i.e. each
+        historical weather year used to drive prices and generation), the
+        fair price is the volume-weighted average of the daily price, with
+        the daily energy generation as the weight:
 
         $$
-        p^* = \frac{\sum (p_t \cdot w_t)}{\sum w_t}
+        p^*_s = \frac{\sum_d \left( p_{s,d} \cdot w_{s,d} \right)}{\sum_d w_{s,d}}
         $$
 
         Where:
-        - $p_t$ is the day-ahead price at time $t$.
-        - $w_t$ is the energy generation at time $t$.
+        - $p_{s,d}$ is the modeled day-ahead price for scenario $s$ on day $d$.
+        - $w_{s,d}$ is the energy generation for scenario $s$ on day $d$ at
+          the clicked grid point.
+
+        **Step 2 — Average across scenarios.** The final fair price displayed
+        in the dashboard is the simple mean of the per-scenario fair prices:
+
+        $$
+        p^* = \frac{1}{N_s} \sum_{s=1}^{N_s} p^*_s
+        $$
+
+        where $N_s$ is the number of weather scenarios. This makes $p^*$ an
+        estimate of the *expected* PPA fair price under the historical
+        distribution of weather years.
 
         ### Energy Generation Model
         Wind speed at 100m is converted to energy using a normalized logistic curve:
