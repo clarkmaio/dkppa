@@ -167,7 +167,8 @@ def render_plots(fairprice_df, weather_df):
     ax3.legend()
     
     plt.tight_layout()
-    st.pyplot(fig)
+    st.pyplot(fig, use_container_width=False)
+    plt.close(fig)
 
 
 # ---------------------------------------------------------
@@ -188,7 +189,13 @@ def main():
         
         with col_map:
             m = create_base_map()
-            map_data = st_folium(m, width=700, height=500, key="main_map")
+            map_data = st_folium(
+                m,
+                width=700,
+                height=500,
+                key="main_map",
+                returned_objects=["last_clicked"],
+            )
         
         # Clicked location
         lat, lng = 56.0, 10.0 # Default location
@@ -230,16 +237,18 @@ def main():
 
     with tab_method:
         st.header("Methodology")
-        st.markdown("""
+        st.markdown(r"""
         ### PPA Fair Price Calculation
         The PPA fair price ($p^*$) is calculated as the volume-weighted average price across all simulated hours:
-        
-        $$ p^* = \frac{\sum (p_t \cdot w_t)}{\sum w_t} $$
-        
+
+        $$
+        p^* = \frac{\sum (p_t \cdot w_t)}{\sum w_t}
+        $$
+
         Where:
         - $p_t$ is the day-ahead price at time $t$.
         - $w_t$ is the energy generation at time $t$.
-        
+
         ### Energy Generation Model
         Wind speed at 100m is converted to energy using a normalized logistic curve:
         - **Saturation:** 35 m/s
